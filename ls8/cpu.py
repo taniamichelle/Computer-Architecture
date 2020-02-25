@@ -9,7 +9,21 @@ class CPU:
         """Construct a new CPU."""
         # STEP 1: Add constructor, add list properties to hold 256 bytes of memory, add 8 general-purpose registers, add properties for any internal registers needed (e.g. 'PC')
         pass
-    # STEP 2: add RAM functions ram_read, ram_write
+
+    # STEP 2: add RAM functions ram_read, ram_write that access the RAM inside the 'CPU' object
+    def ram_read(self, MAR):
+        '''
+        Accepts the address to read and returns the value stored
+there.
+        '''
+        pass
+
+    def ram_write(self, value, MDR):
+        '''
+        Accepts a value to write, and the address to write it to
+        '''
+        pass
+
     def load(self):
         """Load a program into memory."""
 
