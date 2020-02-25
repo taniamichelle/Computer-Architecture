@@ -91,7 +91,7 @@ class CPU:
 
         print()
 
-    def run(self, command):
+    def run(self, instruction):
         """
         Reads the memory address stored in `PC` and stores the result in `IR`. Runs the CPU. 
         """
@@ -100,21 +100,21 @@ class CPU:
         operand_a = self.ram_read(self.pc+1)
         operand_b = self.ram_read(self.pc+2)
         
-        'L' = operand_a < operand_b
-        'G' = operand_a > operand_b
-        'E' = operand_a == operand_b
+        # 'L' = operand_a < operand_b
+        # 'G' = operand_a > operand_b
+        # 'E' = operand_a == operand_b
     
         while True:
-            command = memory[pc]
-            if command == 'L':
+            instruction = memory[pc]
+            if instruction == 'L':
                 pc += 1
             else:
                 pc = 0
-            if command == 'G':
+            if instruction == 'G':
                 pc += 1
             else:
                 pc = 0
-            if command == 'E':
+            if instruction == 'E':
                 pc += 1
             else:
                 pc = 0
