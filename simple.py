@@ -8,28 +8,64 @@ SAVE           = 4  # Save a value into a register
 PRINT_REGISTER = 5  # Print the value in a register
 ADD            = 6  # ADD 2 registers, store the result in 1st reg
 ​
-​# HOLDS PROGRAMS. List contains our arguments (what we expect to print)
-memory = [
-    PRINT_BEEJ,
-    SAVE,  # SAVE 65 in R2
-    65,
-    2,
-    SAVE,  # SAVE 20 in R3
-    20,
-    3,
-    ADD,   # R2 + R3 == 65 + 20; Store in R2 (R2 += R3)
-    2,
-    3,
-    PRINT_REGISTER,  # PRINT R2 (85)
-    2,
-    HALT
-]
+# ​# HOLDS PROGRAMS. List contains our arguments (what we expect to print)
+# memory = [
+#     PRINT_BEEJ,
+#     SAVE,  # SAVE 65 in R2
+#     65,
+#     2,
+#     SAVE,  # SAVE 20 in R3
+#     20,
+#     3,
+#     ADD,   # R2 + R3 == 65 + 20; Store in R2 (R2 += R3)
+#     2,
+#     3,
+#     PRINT_REGISTER,  # PRINT R2 (85)
+#     2,
+#     HALT
+# ]
+
+memory = [0] * 256
 ​
 # CREATE 8 registers
 register = [0] * 8  
 ​
 pc = 0  # Program counter; memory address is 0
+​def load_memory(filename):
+    try:
+        address = 0
+        # Open the file
+        with open(filename) as f:
+            # Read all the lines
+            for line in f:
+                # Parse out comments
+                comment_split = line.strip().split("#")
 ​
+                # Cast the numbers from strings to ints
+                value = comment_split[0].strip()
+​
+                # Ignore blank lines
+                if value == "":
+                    continue
+​
+                num = int(value)
+                memory[address] = num
+                address += 1
+​
+    except FileNotFoundError:
+        print("File not found")
+        sys.exit(2)
+​
+​
+if len(sys.argv) != 2:
+    print("ERROR: Must have file name")
+    sys.exit(1)
+​
+load_memory(sys.argv[1])
+​
+print(memory)
+
+
 # PROCESSOR (REPL: read, eval, program/command, loop)
 while True:  # While it's running
     command = memory[pc]  # Read command from our memory
