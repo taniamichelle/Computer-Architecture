@@ -25,12 +25,14 @@ ADD            = 6  # ADD 2 registers, store the result in 1st reg
 #     HALT
 # ]
 
-memory = [0] * 256
+memory = [0] * 256  # Can only store 256 bytes of memory b/c we have an 8-bit emulator. All of our values are 8 bits
 ​
-# CREATE 8 registers
+# CREATE 8 registers of 1-byte each
 register = [0] * 8  
 ​
-pc = 0  # Program counter; memory address is 0
+pc = 0  # Program counter; memory address is 0 (PC is at the 0th block of memory to start)
+
+# Think of this as loading our file off of a disk (which is slow) and into memory to speed up the accessing of it
 ​def load_memory(filename):
     try:
         address = 0
@@ -38,10 +40,10 @@ pc = 0  # Program counter; memory address is 0
         with open(filename) as f:
             # Read all the lines
             for line in f:
-                # Parse out comments
+                # Parse out comments ('#') and remove white space
                 comment_split = line.strip().split("#")
 ​
-                # Cast the numbers from strings to ints
+                # Cast the numbers from strings to ints. remove white space
                 value = comment_split[0].strip()
 ​
                 # Ignore blank lines
@@ -49,10 +51,10 @@ pc = 0  # Program counter; memory address is 0
                     continue
 ​
                 num = int(value)
-                memory[address] = num
+                memory[address] = num  # Set memory address to the num
                 address += 1
 ​
-    except FileNotFoundError:
+    except FileNotFoundError:  # Error handling
         print("File not found")
         sys.exit(2)
 ​
