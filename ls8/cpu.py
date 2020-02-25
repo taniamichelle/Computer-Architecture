@@ -5,17 +5,33 @@ import sys
 class CPU:
     """Main CPU class."""
 
-    def __init__(self):
+    def __init__(self, memory, registers, pc= 0):
         """Construct a new CPU."""
-        memory = [0] * 256  # 256 bytes of memory
-        register = [0] * 8  # 8 registers of 1-byte each
-        pc = 0  # Program counter starting at 0th block of memory
+        self.memory = [0] * 256  # 256 bytes of memory
+        self.registers = [0] * 8  # 8 registers of 1-byte each
+        self.pc = pc  # Program counter starting at 0th block of memory
 
     def ram_read(self, MAR):
         '''
         Accepts the address to read and returns the value stored there.
         '''
         self.MAR = MAR
+
+        self.load()
+
+        with open(program) as p:
+            for line in p:
+                comment_split = line.strip().split("#")
+
+                value = comment_split[0].strip()
+
+                if value == "":
+                    continue
+
+                num = int(value)
+                memory[address] = num
+                address += 1
+                    
 
     def ram_write(self, value, MDR):
         '''
@@ -75,6 +91,30 @@ class CPU:
 
         print()
 
-    def run(self):
-        """Run the CPU."""
-        pass
+    def run(self, command):
+        """
+        Reads the memory address stored in `PC` and stores the result in `IR`. Runs the CPU. 
+        """
+        self.load()
+
+        operand_a = self.ram_read(self.pc+1)
+        operand_b = self.ram_read(self.pc+2)
+        
+        'L' = operand_a < operand_b
+        'G' = operand_a > operand_b
+        'E' = operand_a == operand_b
+    
+        while True:
+            command = memory[pc]
+            if command == 'L':
+                pc += 1
+            else:
+                pc = 0
+            if command == 'G':
+                pc += 1
+            else:
+                pc = 0
+            if command == 'E':
+                pc += 1
+            else:
+                pc = 0
