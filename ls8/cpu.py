@@ -33,8 +33,8 @@ class CPU:
 
         address = 0
 
+        # STEP 7: Un-hardcode the machine code
         # For now, we've just hardcoded a program:
-
         # Loading program(s) into RAM
         program = [
             # From print8.ls8
@@ -46,7 +46,6 @@ class CPU:
             0b00000001, # HLT
         ]
 
-        # STEP 7:
         # with open(program) as p:
         #     for line in p:
         #         comment_split = line.strip().split("#")
@@ -93,6 +92,15 @@ class CPU:
 
         print()
 
+    # COMMANDS
+    HLT = 0b00000001  # Halt the CPU (and exit the emulator).  should it be HLT = 01 ?
+    LDI = 0b10000010 00000rrr iiiiiiii  # Set the value of a register to an integer.  should it be LDI = 82 0r ii ?
+    PRN = 0b01000111 00000rrr  # Print numeric value stored in the given register. Print to the console the decimal integer value that is stored in the given register. should it be PRN = 47 0r ?
+
+Print to the console the decimal integer value that is stored in the given
+register.
+
+    # STEP 3: Implement `run()` method
     def run(self, instruction):
         """
         Reads the memory address stored in `PC` and stores the result in `IR`. Runs the CPU. 
@@ -121,3 +129,6 @@ class CPU:
                 pc += 1
             else:
                 pc = 0
+            # STEP 4: Exit loop if `HLT` instruction encountered.
+            # STEP 5: Add `LDI` instruction
+            # STEP 6: Add `PRN` instruction
