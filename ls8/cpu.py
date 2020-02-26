@@ -87,14 +87,12 @@ class CPU:
 
         print()
 
-    # # COMMANDS
+    # # INSTRUCTIONS
     # HLT = 0b00000001  # Halt the CPU (and exit the emulator).  should it be HLT = 01 ?
-    # LDI = 0b10000010 00000rrr iiiiiiii  # Set the value of a register to an integer.  should it be LDI = 82 0r ii ?
-    # PRN = 0b01000111 00000rrr  # Print numeric value stored in the given register. Print to the console the decimal integer value that is stored in the given register. should it be PRN = 47 0r ?
+    # LDI = 0b10000010  # Set the value of a register to an integer
+    # PRN = 0b01000111  # Print numeric value stored in the given register. Print to the console the decimal integer value that is stored in the given register
 
-# Print to the console the decimal integer value that is stored in the given register.
 
-    # STEP 3: Implement `run()` method
     def run(self):
         """
         Reads the memory address stored in `PC` and stores the result in `IR`. Runs the CPU. 
@@ -119,7 +117,4 @@ class CPU:
             elif IR == 0b00000001:  # If `HLT`
                 break
             self.pc += 1  # Increment pc by 1
-            # STEP 4: Exit loop if `HLT` instruction encountered.
-            # STEP 5: Add `LDI` instruction
-            # STEP 6: Add `PRN` instruction
 
