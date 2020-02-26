@@ -15,16 +15,12 @@ class CPU:
         '''
         Accepts the address to read and returns the value stored there.
         '''
-        # self.MAR = MAR
-
         return self.ram[MAR]                  
 
     def ram_write(self, MAR, MDR):
         '''
         Accepts a value to write and the address to write it to.
         '''
-        # self.MAR = MAR  # RAM address
-        # self.MDR = MDR  # Data being saved
         self.ram[MAR] = MDR
 
     def load(self):
@@ -105,24 +101,24 @@ class CPU:
         """
 
         while True:
-            IR = self.ram_read(self.pc)
-            operands = IR >> 6
+            IR = self.ram_read(self.pc)  # Read and store memory address stored in reg `PC` as IR
+            operands = IR >> 6  # Right-shift IR by 6
             # if operands == 0:  # If no arguments in IR
             #     pass
-            if operands == 1:  # If 1 argument
+            if operands == 1:  # If 1 argument (operand)
                 operand_a = self.ram_read(self.pc+1)
             elif operands == 2:  # If 2 arguments
                 operand_a = self.ram_read(self.pc+1)
                 operand_b = self.ram_read(self.pc+2)
-            if IR == 0b10000010:
-                self.register[operand_a] = operand_b
-                self.pc += operands
-            elif IR == 0b01000111:
+            if IR == 0b10000010:  # If `LDI`
+                self.register[operand_a] = operand_b  # Store value (op b) in reg 0 (op a)
+                self.pc += operands  # Increment pc by num of operands
+            elif IR == 0b01000111:  # If `PRN`
                 print("Print: 1 operand", self.register[operand_a])
                 self.pc += operands
-            elif IR == 0b00000001:
+            elif IR == 0b00000001:  # If `HLT`
                 break
-            self.pc += 1 
+            self.pc += 1  # Increment pc by 1
             # STEP 4: Exit loop if `HLT` instruction encountered.
             # STEP 5: Add `LDI` instruction
             # STEP 6: Add `PRN` instruction
