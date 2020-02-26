@@ -102,7 +102,7 @@ class CPU:
 
         while True:
             IR = self.ram_read(self.pc)  # Read and store memory address stored in reg `PC` as IR
-            operands = IR >> 6  # Right-shift IR by 6
+            operands = IR >> 6  # Right-shift IR by 6 so that the high bits (containing # operands) are rightmost
             # if operands == 0:  # If no arguments in IR
             #     pass
             if operands == 1:  # If 1 argument (operand)
