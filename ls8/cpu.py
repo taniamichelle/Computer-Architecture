@@ -5,7 +5,8 @@ import sys
 instruction_hash = {
     0b00000001: 'HLT',  # Halt the CPU (and exit the emulator).  should it be HLT = 01 ?
     0b10000010: 'LDI',  # Set the value of a register to an integer
-    0b01000111: 'PRN'  # Print numeric value stored in the given register. Print to the console the decimal integer value that is stored in the given register
+    0b01000111: 'PRN',  # Print numeric value stored in the given register. Print to the console the decimal integer value that is stored in the given register
+    0b10100010: 'MUL'
 }
 
 class CPU:
@@ -22,19 +23,36 @@ class CPU:
         self.methods_hash = {
             'LDI': self.execute_ldi,
             'PRN': self.execute_prn,
-            'HLT': self.execute_hlt
+            'HLT': self.execute_hlt,
+            'MUL': self.execute_mul
         }
     
+    def execute_mul(self):
+        print('register 1', self.register)
+        self.alu('MUL', self.operand_a, self.operand_b)
+        print('register', self.register)
+        # self.pc += self.operands 
+
     def execute_ldi(self):
         self.register[self.operand_a] = self.operand_b  # Store value (op b) in reg 0 (op a)
-        self.pc += self.operands  # Increment pc by num of operands
+        # self.pc += self.operands  # Increment pc by num of operands
 
     def execute_prn(self):
         print("Print: 1 operand", self.register[self.operand_a])
-        self.pc += self.operands
+        # self.pc += self.operands
 
     def execute_hlt(self):
         sys.exit()
+
+    def handle_pc(self, IR):
+        '''
+        Method to make pc dynamic.
+        '''
+        if ((IR <<3)%256) >>7 == 1:  # Isolate `B` condition from instructions
+            pass
+        else:
+            self.pc += self.operands + 1  # Alternative to incrementing pc in each method
+
     def ram_read(self, MAR):
         '''
         Accepts the address to read and returns the value stored there.
@@ -72,7 +90,9 @@ class CPU:
 
         if op == "ADD":
             self.register[reg_a] += self.register[reg_b]
-        #elif op == "SUB": etc
+        elif op == "MUL":
+            self.register[reg_a] *= self.register[reg_b]
+        #elif op == "SUB": self.register[reg_a] -= self.register[reg_b]
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -111,8 +131,8 @@ class CPU:
             elif self.operands == 2:  # If 2 arguments
                 self.operand_a = self.ram_read(self.pc+1)
                 self.operand_b = self.ram_read(self.pc+2)
-            
+            print("IR", IR)
             self.methods_hash[instruction_hash[IR]]()  # Invoke our methods_hash as a function
-
-            self.pc += 1  # Increment pc by 1
+            self.handle_pc(IR)
+            # self.pc += 1  # Increment pc by 1
 
