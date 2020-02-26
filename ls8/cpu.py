@@ -7,7 +7,9 @@ instruction_hash = {
     0b00000001: 'HLT',  # Halt the CPU (and exit the emulator).  should it be HLT = 01 ?
     0b10000010: 'LDI',  # Set the value of a register to an integer
     0b01000111: 'PRN',  # Print numeric value stored in the given register. Print to the console the decimal integer value that is stored in the given register
-    0b10100010: 'MUL'
+    0b10100010: 'MUL',  # Multipy the values in 2 reg together + store in Reg A
+    0b01000101: 'PUSH',  # Push the value in given register onto top of stack
+    0b01000110: 'POP',  # Pop the value at the top of stack into given register
 }
 
 class CPU:
@@ -18,6 +20,7 @@ class CPU:
         self.ram = [0] * 256  # 256 bytes of memory
         self.register = [0] * 8  # 8 registers of 1-byte each
         self.pc = 0  # Program counter starting at 0th block of memory
+        self.sp = 7  # SP is R7
         self.operands = None
         self.operand_a = None
         self.operand_b = None
@@ -25,9 +28,35 @@ class CPU:
             'LDI': self.execute_ldi,
             'PRN': self.execute_prn,
             'HLT': self.execute_hlt,
-            'MUL': self.execute_mul
+            'MUL': self.execute_mul,
+            'PUSH': self.execute_push,
+            'POP': self.execute_pop
         }
     
+    def execute_push(self):
+        '''
+        Runs `PUSH`. Stack begins at address F3 and grows downward. SP points at value at top of stack or at F4 if stack is empty.
+        '''
+        # Grab register from reg argument
+        reg = self.ram[self.pc + 1]
+        val = self.register[reg]
+        # Decrement SP
+        self.register[self.sp] -= 1
+        # Copy the value in the given register(from R0-R6) to the address pointed to by SP
+        self.ram[self.register[self.sp]] = val
+        self.pc += 2
+
+    def execute_pop(self):
+        '''Runs `POP`.'''
+        # Grab the value from memory at the top of stack
+        reg = self.ram[self.pc + 1]
+        val = self.ram[self.register[self.sp]]
+        # Copy the value from address pointed to by SP to the given register
+        self.register[reg] = val
+        # Increment SP
+        self.register[self.sp] += 1
+        self.pc += 2
+        
     def execute_mul(self):
         '''
         Runs alu() method passing in `MUL` as the instructional argument.
@@ -39,7 +68,7 @@ class CPU:
 
     def execute_ldi(self):
         '''
-        Runs LDI, which sets the value of a register to an integer.
+        Runs `LDI`, which sets the value of a register to an integer.
         '''
         self.register[self.operand_a] = self.operand_b  # Store value (op b) in reg 0 (op a)
         # self.pc += self.operands  # Increment pc by num of operands
