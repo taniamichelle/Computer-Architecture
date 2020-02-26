@@ -5,9 +5,9 @@ import sys
 class CPU:
     """Main CPU class."""
 
-    def __init__(self, memory, registers, pc= 0):
+    def __init__(self, ram, registers, pc= 0):
         """Construct a new CPU."""
-        self.memory = [0] * 256  # 256 bytes of memory
+        self.ram = [0] * 256  # 256 bytes of memory
         self.registers = [0] * 8  # 8 registers of 1-byte each
         self.pc = pc  # Program counter starting at 0th block of memory
 
@@ -17,28 +17,15 @@ class CPU:
         '''
         self.MAR = MAR
 
-        self.load()
+        return self.ram[MAR]                  
 
-        with open(program) as p:
-            for line in p:
-                comment_split = line.strip().split("#")
-
-                value = comment_split[0].strip()
-
-                if value == "":
-                    continue
-
-                num = int(value)
-                memory[address] = num
-                address += 1
-                    
-
-    def ram_write(self, value, MDR):
+    def ram_write(self, MAR, MDR):
         '''
         Accepts a value to write, and the address to write it to
         '''
-        self.value = value
-        self.MDR = MDR
+        self.MAR = MAR  # RAM address
+        self.MDR = MDR  # Data being saved
+        
 
     def load(self):
         """Load a program into memory."""
@@ -47,6 +34,7 @@ class CPU:
 
         # For now, we've just hardcoded a program:
 
+        # Loading program(s) into RAM
         program = [
             # From print8.ls8
             0b10000010, # LDI R0,8
@@ -57,6 +45,18 @@ class CPU:
             0b00000001, # HLT
         ]
 
+        # with open(program) as p:
+        #     for line in p:
+        #         comment_split = line.strip().split("#")
+
+        #         value = comment_split[0].strip()
+
+        #         if value == "":
+        #             continue
+
+        #         num = int(value)
+        #         memory[address] = num
+        #         address += 1
         for instruction in program:
             self.ram[address] = instruction
             address += 1
