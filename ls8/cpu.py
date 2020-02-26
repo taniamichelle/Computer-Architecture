@@ -40,8 +40,12 @@ class CPU:
         # Grab register from reg argument
         reg = self.ram[self.pc + 1]
         val = self.register[reg]
+        print("reg in push: ", self.ram[self.pc + 1])
+        print("val in push: ", self.register[reg])
+        print("sp start in push: ", self.sp)
         # Decrement SP
         self.register[self.sp] -= 1
+        print("sp end in push: ", self.sp)
         # Copy the value in the given register(from R0-R6) to the address pointed to by SP
         self.ram[self.register[self.sp]] = val
         self.pc += 2
@@ -51,19 +55,23 @@ class CPU:
         # Grab the value from memory at the top of stack
         reg = self.ram[self.pc + 1]
         val = self.ram[self.register[self.sp]]
+        print("reg in pop: ", self.ram[self.pc + 1])
+        print("val in pop: ", self.register[reg])
+        print("sp start in pop: ", self.sp)
         # Copy the value from address pointed to by SP to the given register
         self.register[reg] = val
         # Increment SP
         self.register[self.sp] += 1
+        print("sp end in pop: ", self.sp)
         self.pc += 2
-        
+
     def execute_mul(self):
         '''
         Runs alu() method passing in `MUL` as the instructional argument.
         '''
-        print('register 1', self.register)
+        # print('register 1', self.register)
         self.alu('MUL', self.operand_a, self.operand_b)
-        print('register', self.register)
+        # print('register', self.register)
         # self.pc += self.operands 
 
     def execute_ldi(self):
@@ -77,7 +85,7 @@ class CPU:
         '''
         Prints numeric value (decimal integer)stored in the given register to console.
         '''
-        print("Print: 1 operand", self.register[self.operand_a])
+        print("Operand:", self.register[self.operand_a])
         # self.pc += self.operands
 
     def execute_hlt(self):
@@ -173,7 +181,7 @@ class CPU:
             elif self.operands == 2:  # If 2 arguments
                 self.operand_a = self.ram_read(self.pc+1)
                 self.operand_b = self.ram_read(self.pc+2)
-            print("IR", IR)
+            # print("IR", IR)
             self.methods_hash[instruction_hash[IR]]()  # Invoke our methods_hash as a function
             self.handle_pc(IR)
             # self.pc += 1  # Increment pc by 1
