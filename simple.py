@@ -25,13 +25,13 @@ ADD            = 6  # ADD 2 registers, store the result in 1st reg
 #     HALT
 # ]
 
-memory = [0] * 256  # Can only store 256 bytes of memory b/c we have an 8-bit emulator. All of our values are 8 bits
+memory = [0] * 256  # Can only store 256 bytes of memory b/c we have an 8-bit emulator. All of our values are 8 bits. This creates our stack, which uses the highest bits of RAM.
 ​
 # CREATE 8 registers of 1-byte each
 register = [0] * 8  
 ​
 pc = 0  # Program counter; memory address is 0 (PC is at the 0th block of memory to start)
-sp = 7  # Stack pointer is at R7
+sp = 7  # Stack pointer is R7
 
 # Think of this as loading our file off of a disk (which is slow) and into memory to speed up the accessing of it
 ​def load_memory(filename):
@@ -65,14 +65,14 @@ if len(sys.argv) != 2:
     sys.exit(1)
 ​
 load_memory(sys.argv[1])
-​
-print(memory)
 
 
 # PROCESSOR (REPL: read, eval, program/command, loop)
 while True:  # While it's running
     command = memory[pc]  # Read command from our memory
-​
+    print('memory', memory)
+    print('register', register)
+
     if command == PRINT_BEEJ:  # Evaluate command
         print("Beej!")
         pc += 1
@@ -96,10 +96,24 @@ while True:  # While it's running
         reg_b = memory[pc + 2]  # Get 2nd reg index from 2nd arg
         register[reg_a] += register[reg_b]  # ADD 2 registers, store the result in 1st reg (reg_a) 
         pc += 3
-    # elif command == PUSH:
-
-    # elif command == POP:
-    
+    elif command == PUSH:
+        # Grab reg from reg argument
+        reg = memory[pc + 1]
+        val = register[reg]
+        # Decrement SP
+        register[SP] -= 1
+        # Copy the value in the given reg to the address SP points to.
+        memory[register[SP]] = val
+        pc += 2
+    elif command == POP:
+        # Grab the value from memory at the top of Stack
+        reg = memory[pc + 1]
+        val = memory[register[SP]]
+        #  Copy the value from the address pointed to by SP into the given reg.
+        register[reg] = val
+        # Increment SP
+        register[SP] += 1
+        pc += 2
     elif command == HALT:
         sys.exit(0)
     else:
