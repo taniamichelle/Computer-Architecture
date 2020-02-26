@@ -2,6 +2,7 @@
 
 import sys
 
+# Branch-table/ Dispatch-table to simplify instruction handler. Dictionary of functions indexed by opcode value.
 instruction_hash = {
     0b00000001: 'HLT',  # Halt the CPU (and exit the emulator).  should it be HLT = 01 ?
     0b10000010: 'LDI',  # Set the value of a register to an integer
@@ -28,20 +29,32 @@ class CPU:
         }
     
     def execute_mul(self):
+        '''
+        Runs alu() method passing in `MUL` as the instructional argument.
+        '''
         print('register 1', self.register)
         self.alu('MUL', self.operand_a, self.operand_b)
         print('register', self.register)
         # self.pc += self.operands 
 
     def execute_ldi(self):
+        '''
+        Runs LDI, which sets the value of a register to an integer.
+        '''
         self.register[self.operand_a] = self.operand_b  # Store value (op b) in reg 0 (op a)
         # self.pc += self.operands  # Increment pc by num of operands
 
     def execute_prn(self):
+        '''
+        Prints numeric value (decimal integer)stored in the given register to console.
+        '''
         print("Print: 1 operand", self.register[self.operand_a])
         # self.pc += self.operands
 
     def execute_hlt(self):
+        '''
+        Halts the CPU and exits the emulator.
+        '''
         sys.exit()
 
     def handle_pc(self, IR):
@@ -66,7 +79,7 @@ class CPU:
         self.ram[MAR] = MDR
 
     def load(self):
-        """Load a program into memory."""
+        """Loads a program into memory."""
 
         address = 0
 
