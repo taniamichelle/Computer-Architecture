@@ -21,11 +21,12 @@ class CPU:
 
     def ram_write(self, MAR, MDR):
         '''
-        Accepts a value to write, and the address to write it to
+        Accepts a value to write and the address to write it to.
         '''
         self.MAR = MAR  # RAM address
         self.MDR = MDR  # Data being saved
-        
+
+        return self.ram[MAR] = self.MDR
 
     def load(self):
         """Load a program into memory."""
