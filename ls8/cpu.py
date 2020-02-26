@@ -107,9 +107,9 @@ class CPU:
         while True:
             IR = self.ram_read(self.pc)
             operands = IR >> 6
-            if operands == 0:  # If no arguments in IR
-                continue
-            elif operands == 1:  # If 1 argument
+            # if operands == 0:  # If no arguments in IR
+            #     pass
+            if operands == 1:  # If 1 argument
                 operand_a = self.ram_read(self.pc+1)
             elif operands == 2:  # If 2 arguments
                 operand_a = self.ram_read(self.pc+1)
