@@ -46,6 +46,7 @@ class CPU:
             0b00000001, # HLT
         ]
 
+        # STEP 7:
         # with open(program) as p:
         #     for line in p:
         #         comment_split = line.strip().split("#")
@@ -96,8 +97,9 @@ class CPU:
         """
         Reads the memory address stored in `PC` and stores the result in `IR`. Runs the CPU. 
         """
-        self.load()
+        # self.load()
 
+        IR = self.ram_read(self.pc)
         operand_a = self.ram_read(self.pc+1)
         operand_b = self.ram_read(self.pc+2)
         
