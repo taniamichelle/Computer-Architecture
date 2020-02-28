@@ -7,6 +7,7 @@ instruction_hash = {
     0b00000001: 'HLT',  # Halt the CPU (and exit the emulator).  should it be HLT = 01 ?
     0b10000010: 'LDI',  # Set the value of a register to an integer
     0b01000111: 'PRN',  # Print numeric value stored in the given register. Print to the console the decimal integer value that is stored in the given register
+    0b10100000: 'ADD',  # Add the values in 2 reg together + store in Reg A
     0b10100010: 'MUL',  # Multipy the values in 2 reg together + store in Reg A
     0b01000101: 'PUSH',  # Push the value in given register onto top of stack
     0b01000110: 'POP',  # Pop the value at the top of stack into given register, 
@@ -30,6 +31,7 @@ class CPU:
             'LDI': self.execute_ldi,
             'PRN': self.execute_prn,
             'HLT': self.execute_hlt,
+            'ADD': self.
             'MUL': self.execute_mul,
             'PUSH': self.execute_push,
             'POP': self.execute_pop,
@@ -96,6 +98,13 @@ class CPU:
         self.register[self.sp] += 1
         # print("sp end in pop: ", self.sp)
         # self.pc += 2
+    
+    def execute_add(self):
+        '''
+        Runs alu() method passing in `ADD` as the instructional argument.
+        '''
+        # print('register 1', self.register)
+        self.alu('ADD', self.operand_a, self.operand_b)
 
     def execute_mul(self):
         '''
