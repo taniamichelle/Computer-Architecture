@@ -31,7 +31,7 @@ class CPU:
             'LDI': self.execute_ldi,
             'PRN': self.execute_prn,
             'HLT': self.execute_hlt,
-            'ADD': self.
+            'ADD': self.execute_add,
             'MUL': self.execute_mul,
             'PUSH': self.execute_push,
             'POP': self.execute_pop,
