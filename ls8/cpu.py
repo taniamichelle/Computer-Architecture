@@ -4,16 +4,28 @@ import sys
 
 # Branch-table/ Dispatch-table to simplify instruction handler. Dictionary of functions indexed by opcode value.
 instruction_hash = {
-    0b00000001: 'HLT',  # Halt the CPU (and exit the emulator).  should it be HLT = 01 ?
-    0b10000010: 'LDI',  # Set the value of a register to an integer
-    0b01000111: 'PRN',  # Print numeric value stored in the given register. Print to the console the decimal integer value that is stored in the given register
     0b10100000: 'ADD',  # Add the values in 2 reg together + store in Reg A
+    0b01010000: 'CALL', # Calls a subroutine at the address stored in the reg
+    0b10100111: 'CMP',  # Compare the values in two registers.
+    0b10100011: 'DIV',
+    0b00000001: 'HLT',  # Halt the CPU (and exit the emulator). 
+    0b01010101: 'JEQ',  # Jump to the address stored in the given register if equal flag set to true
+    0b01010100: 'JMP',  # Jump to the address stored in the given register.
+    0b01010110: 'JNE',   # Jump to the address stored in the given register if E flag is clear (false, 0)
+    0b10000010: 'LDI',  # Set the value of a register to an integer
     0b10100010: 'MUL',  # Multipy the values in 2 reg together + store in Reg A
-    0b01000101: 'PUSH',  # Push the value in given register onto top of stack
+    0b01000111: 'PRN',  # Print numeric value stored in the given register. Print to the console the decimal integer value that is stored in the given register
     0b01000110: 'POP',  # Pop the value at the top of stack into given register, 
-    0b01010000: 'CALL',  # Calls a subroutine at the address stored in the reg
-    0b00010001: 'RET'  # Return from subroutine
+    0b01000101: 'PUSH', # Push the value in given register onto top of stack
+    0b00010001: 'RET',  # Return from subroutine,
+    0b10100001: 'SUB'
 }
+
+
+# FLAGS:
+FL_LT = 0b100
+FL_GT = 0b010
+FL_EQ = 0b001
 
 class CPU:
     """Main CPU class."""
@@ -23,20 +35,30 @@ class CPU:
         self.ram = [0] * 256  # 256 bytes of memory
         self.register = [0] * 8  # 8 registers of 1-byte each
         self.pc = 0  # Program counter starting at 0th block of memory
+        self.im = 5
+        self.is = 6
         self.sp = 7  # SP is R7
+        self.fl = 0  # Flags
+        self.ie = 1  # Interrupts enabled
         self.operands = None
         self.operand_a = None
         self.operand_b = None
         self.methods_hash = {
-            'LDI': self.execute_ldi,
-            'PRN': self.execute_prn,
-            'HLT': self.execute_hlt,
             'ADD': self.execute_add,
-            'MUL': self.execute_mul,
-            'PUSH': self.execute_push,
-            'POP': self.execute_pop,
             'CALL': self.execute_call,
-            'RET': self.execute_ret
+            'CMP': self.execute_cmp,
+            'DIV': self.execute_div,
+            'HLT': self.execute_hlt,
+            'JEQ': self.execute_jeq,
+            'JMP': self.execute_jmp,
+            'JNE': self.execute_jne,
+            'LDI': self.execute_ldi,
+            'MUL': self.execute_mul,
+            'POP': self.execute_pop,
+            'PRN': self.execute_prn,
+            'PUSH': self.execute_push,
+            'RET': self.execute_ret,
+            'SUB': self.execute_sub
         }
     
     def execute_call(self):
@@ -99,12 +121,48 @@ class CPU:
         # print("sp end in pop: ", self.sp)
         # self.pc += 2
     
+    def execute_jmp(self):
+        '''
+        Runs `JMP`. Set the PC to the address stored in the given register.
+        '''
+        self.pc = self.register[self.operand_a]
+    
+    def execute_jeq(self):
+        '''
+        If equal flag is set (true), jump to the address stored in the given register.
+        '''
+        if self.fl & FL_EQ:
+            self.pc = self.register[self.operand_a]
+        # else:
+        #     pass
+
+    def execute_jne(self):
+        '''
+        If E flag is clear (false, 0), jump to the address stored in the given register.
+        '''
+        if not self.fl & FL_EQ:
+            self.pc = self.register[self.operand_a]
+        # else:
+        #     pass
+    
+    def execute_cmp(self):
+        '''
+        Compare the values in two registers.
+        If they are equal, set the Equal E flag to 1, otherwise set it to 0.
+        If registerA is less than registerB, set the Less-than L flag to 1, otherwise set it to 0.
+        If registerA is greater than registerB, set the Greater-than G flag to 1, otherwise set it to 0.
+        '''
+        self.alu('CMP', self.operand_a, self.operand_b)
+
     def execute_add(self):
         '''
         Runs alu() method passing in `ADD` as the instructional argument.
         '''
         # print('register 1', self.register)
         self.alu('ADD', self.operand_a, self.operand_b)
+
+    def execute_div(self):
+        self.alu("DIV", self.operand_a, self.operand_b)
 
     def execute_mul(self):
         '''
@@ -114,6 +172,9 @@ class CPU:
         self.alu('MUL', self.operand_a, self.operand_b)
         # print('register', self.register)
         # self.pc += self.operands 
+
+    def execute_sub(self):
+        self.alu('SUB', self.operand_a, self.operand_b)
 
     def execute_ldi(self):
         '''
@@ -134,6 +195,26 @@ class CPU:
         Halts the CPU and exits the emulator.
         '''
         sys.exit()
+
+    def handle_int(self):
+        if not self.ie:  # Checks if interrupts are enabled
+            return
+        mask_int = self.register[self.im] & self.register[self.is]  # Mask interr
+
+        for i in range(8):
+            # Checks if interr triggered
+            if mask_int & (1 << i): 
+                self.ie = 0  # Disables interr
+                self.register[self.is] &= ~(1 << i)  # Clears reg memory for interr
+                self.execute_push(self.pc)  # Saves work to stack
+                self.execute_push(self.fl)  
+                
+                for j in range(7):
+                    self.execute_push(self.register[j])
+                
+                self.pc = self.ram_read(0xf8 + i)  # Looks up address and JMPs to it
+
+                break
 
     def handle_pc(self, IR):
         '''
@@ -184,6 +265,18 @@ class CPU:
         elif op == "MUL":
             self.register[reg_a] *= self.register[reg_b]
         #elif op == "SUB": self.register[reg_a] -= self.register[reg_b]
+        elif op == "SUB":
+            self.reg[reg_a] -= self.reg[reg_b]
+        elif op == "DIV":
+            self.reg[reg_a] /= self.reg[reg_b]
+        elif op == "CMP":
+            self.fl &= 0x11111000  # Clears all CMP flags
+            if self.register[reg_a] < self.register[reg_b]:
+                self.fl |= FL_LT
+            elif self.register[reg_a] > self.register[reg_b]:
+                self.fl |= FL_GT
+            else:
+                self.fl |= FL_EQ
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -206,7 +299,6 @@ class CPU:
             print(" %02X" % self.register[i], end='')
 
         print()
-
 
     def run(self):
         """
